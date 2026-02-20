@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Colaboración GitHub Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Chosen Palette: Warm Neutrals & Professional Accents */
+        :root {
+            --bg-color: #F9FAFB; /* Gray 50 */
+            --text-main: #374151; /* Gray 700 */
+            --accent-primary: #EA580C; /* Orange 600 - Warmth */
+            --accent-secondary: #0D9488; /* Teal 600 - Success/Feat */
+            --accent-tertiary: #4F46E5; /* Indigo 600 - Tech/Git */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Chart Container Styling - MANDATORY */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Utility for transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .code-block {
+            background-color: #1F2937;
+            color: #E5E7EB;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+    <!-- Application Structure Plan: 
+         Designed as a Dashboard/Learning Hub with 4 main pillars:
+         1. Strategy (Branching): Theory + Interactive Generator.
+         2. Commits (Conventional): Breakdown + Interactive Builder.
+         3. Workflow (PRs): Process steps + Checklist.
+         4. Analytics (Impact): Visualizing why this matters.
+         
+         The flow is non-linear; users can jump to the tool they need.
+    -->
+    <!-- Visualization & Content Choices:
+         - Branching: Interactive Input/Output to practice naming.
+         - Commits: Form-based builder to visualize 'type(scope): subject'.
+         - Impact: Chart.js Donut chart to show ideal commit distribution in a healthy repo.
+         - Workflow: Step-by-step cards.
+         - NO SVG/Mermaid: Used CSS shapes and FontAwesome-like unicode where needed.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-gray-800 tracking-tight">Git<span class="text-orange-600">Pro</span>Flow</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="switchTab('dashboard')" class="nav-btn text-gray-900 font-medium hover:text-orange-600 px-3 py-2" id="nav-dashboard">Dashboard</button>
+                    <button onclick="switchTab('branches')" class="nav-btn text-gray-500 font-medium hover:text-orange-600 px-3 py-2" id="nav-branches">Ramas (Branches)</button>
+                    <button onclick="switchTab('commits')" class="nav-btn text-gray-500 font-medium hover:text-orange-600 px-3 py-2" id="nav-commits">Commits</button>
+                    <button onclick="switchTab('workflow')" class="nav-btn text-gray-500 font-medium hover:text-orange-600 px-3 py-2" id="nav-workflow">Pull Requests</button>
+                </div>
+                <!-- Mobile menu button placeholder -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-gray-500 hover:text-gray-900 focus:outline-none">
+                        ☰
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <button onclick="switchTab('dashboard')" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Dashboard</button>
+            <button onclick="switchTab('branches')" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Ramas</button>
+            <button onclick="switchTab('commits')" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Commits</button>
+            <button onclick="switchTab('workflow')" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Pull Requests</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- VIEW: DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+                    Estándares de <span class="text-orange-600">Colaboración</span>
+                </h1>
+                <p class="mt-5 max-w-xl mx-auto text-xl text-gray-500">
+                    Guía profesional interactiva para el trabajo colaborativo en GitHub. Domina el nombrado de ramas, Conventional Commits y Code Reviews.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <!-- Intro Card -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">¿Por qué estandarizar?</h2>
+                    <p class="text-gray-600 mb-4">
+                        Un repositorio sin reglas se convierte rápidamente en un caos imposible de mantener. Esta aplicación resume las mejores prácticas de la industria para mantener un historial limpio, facilitar la automatización (CI/CD) y mejorar la comunicación del equipo.
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2">
+                        <li>Rastreabilidad de cambios.</li>
+                        <li>Generación automática de Changelogs.</li>
+                        <li>Code Reviews más eficientes.</li>
+                    </ul>
+                </div>
+
+                <!-- Visualization: Healthy Repo Stats -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-2">Distribución Ideal de Commits</h2>
+                    <p class="text-sm text-gray-500 mb-4">Un proyecto saludable suele tener esta proporción de tipos de cambio.</p>
+                    <div class="chart-container">
+                        <canvas id="repoHealthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div onclick="switchTab('branches')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition cursor-pointer text-center group">
+                    <div class="text-4xl mb-4 group-hover:scale-110 transition transform">🌿</div>
+                    <h3 class="text-lg font-medium text-gray-900">Estrategia de Ramas</h3>
+                    <p class="mt-2 text-sm text-gray-500">Nomenclatura y estructura jerárquica.</p>
+                </div>
+                <div onclick="switchTab('commits')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition cursor-pointer text-center group">
+                    <div class="text-4xl mb-4 group-hover:scale-110 transition transform">💬</div>
+                    <h3 class="text-lg font-medium text-gray-900">Conventional Commits</h3>
+                    <p class="mt-2 text-sm text-gray-500">Reglas para mensajes semánticos.</p>
+                </div>
+                <div onclick="switchTab('workflow')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition cursor-pointer text-center group">
+                    <div class="text-4xl mb-4 group-hover:scale-110 transition transform">🔄</div>
+                    <h3 class="text-lg font-medium text-gray-900">Pull Requests</h3>
+                    <p class="mt-2 text-sm text-gray-500">Ciclo de vida y revisión de código.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: BRANCHES -->
+        <div id="branches" class="tab-content">
+            <div class="mb-8 border-b border-gray-200 pb-4">
+                <h2 class="text-3xl font-bold text-gray-900">Estrategia de Ramas</h2>
+                <p class="mt-2 text-lg text-gray-600">
+                    El nombre de una rama debe comunicar inmediatamente su propósito y contexto. Usa minúsculas y separa palabras con guiones.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Theory Column -->
+                <div class="space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Prefijos Estándar</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <span class="inline-flex items-center justify-center h-8 w-20 rounded-md bg-green-100 text-green-800 font-mono text-sm font-bold mr-3 flex-shrink-0">feat/</span>
+                                <p class="text-gray-600 text-sm">Para nuevas características o funcionalidades. <br><span class="text-xs text-gray-400">Ej: feat/login-page-redesign</span></p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="inline-flex items-center justify-center h-8 w-20 rounded-md bg-red-100 text-red-800 font-mono text-sm font-bold mr-3 flex-shrink-0">fix/</span>
+                                <p class="text-gray-600 text-sm">Para corregir errores en el código (bug fixes). <br><span class="text-xs text-gray-400">Ej: fix/navbar-collapse-mobile</span></p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="inline-flex items-center justify-center h-8 w-20 rounded-md bg-orange-100 text-orange-800 font-mono text-sm font-bold mr-3 flex-shrink-0">hotfix/</span>
+                                <p class="text-gray-600 text-sm">Errores críticos en producción que requieren acción inmediata. <br><span class="text-xs text-gray-400">Ej: hotfix/payment-gateway-timeout</span></p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="inline-flex items-center justify-center h-8 w-20 rounded-md bg-blue-100 text-blue-800 font-mono text-sm font-bold mr-3 flex-shrink-0">docs/</span>
+                                <p class="text-gray-600 text-sm">Cambios exclusivamente en documentación. <br><span class="text-xs text-gray-400">Ej: docs/update-readme-install</span></p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="inline-flex items-center justify-center h-8 w-20 rounded-md bg-purple-100 text-purple-800 font-mono text-sm font-bold mr-3 flex-shrink-0">refactor/</span>
+                                <p class="text-gray-600 text-sm">Cambios de código que no arreglan bugs ni añaden funcionalidades. <br><span class="text-xs text-gray-400">Ej: refactor/user-controller-cleanup</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Tool Column -->
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🛠️</span> Generador de Nombres de Rama
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-6">Usa esta herramienta para practicar la creación de nombres estandarizados.</p>
+                    
+                    <form id="branchForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tipo de Tarea</label>
+                            <select id="branchType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md border">
+                                <option value="feat">feat (Nueva funcionalidad)</option>
+                                <option value="fix">fix (Corrección de error)</option>
+                                <option value="hotfix">hotfix (Error crítico prod)</option>
+                                <option value="docs">docs (Documentación)</option>
+                                <option value="refactor">refactor (Mejora código)</option>
+                                <option value="test">test (Añadir pruebas)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ID del Ticket / Tarea (Opcional)</label>
+                            <input type="text" id="branchTicket" placeholder="Ej: T-420, JIRA-123" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Si usas un gestor de tareas, incluye el ID.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Descripción Breve</label>
+                            <input type="text" id="branchDesc" placeholder="Ej: Agregar Login con Google" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Usa espacios, el sistema los convertirá a guiones.</p>
+                        </div>
+                    </form>
+
+                    <div class="mt-8 bg-gray-900 rounded-lg p-4 relative">
+                        <p class="text-gray-400 text-xs uppercase tracking-wider mb-1">Resultado (Preview)</p>
+                        <div class="flex justify-between items-center">
+                            <code id="branchResult" class="text-green-400 font-mono text-lg break-all">feat/descripcion-tarea</code>
+                            <button onclick="copyBranch()" class="ml-2 text-gray-400 hover:text-white" title="Copiar">📋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: COMMITS -->
+        <div id="commits" class="tab-content">
+            <div class="mb-8 border-b border-gray-200 pb-4">
+                <h2 class="text-3xl font-bold text-gray-900">Conventional Commits</h2>
+                <p class="mt-2 text-lg text-gray-600">
+                    Estructura tus mensajes para que sean legibles por humanos y máquinas.
+                </p>
+            </div>
+
+            <!-- Structure Explanation -->
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-8">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <span class="text-indigo-500 font-bold text-xl">ℹ️</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-indigo-700 font-bold">
+                            Estructura: <code>&lt;tipo&gt;[(&lt;ambito&gt;)]: &lt;descripción&gt;</code>
+                        </p>
+                        <p class="text-sm text-indigo-600 mt-1">
+                            Ejemplo: <code>feat(auth): add google oauth provider</code>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Commit Builder (Left 2/3) -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Constructor de Commits</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tipo (Type)</label>
+                            <select id="commitType" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                                <option value="feat">feat (Feature)</option>
+                                <option value="fix">fix (Bug Fix)</option>
+                                <option value="docs">docs (Documentation)</option>
+                                <option value="style">style (Formatting)</option>
+                                <option value="refactor">refactor (Code Restructuring)</option>
+                                <option value="perf">perf (Performance)</option>
+                                <option value="test">test (Tests)</option>
+                                <option value="chore">chore (Build/Tools)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Ámbito (Scope) <span class="text-gray-400 font-normal">(Opcional)</span></label>
+                            <input type="text" id="commitScope" placeholder="Ej: api, ui, db" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Descripción (Subject)</label>
+                        <input type="text" id="commitSubject" placeholder="Usa imperativo, minúsculas, sin punto final" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                        <p id="subjectWarning" class="text-xs text-red-500 mt-1 hidden">⚠️ La descripción debe ser breve (menos de 50 chars recomendado).</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Cuerpo (Body) <span class="text-gray-400 font-normal">(Opcional - Para explicación detallada)</span></label>
+                        <textarea id="commitBody" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"></textarea>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div class="bg-gray-900 text-white p-4 rounded-lg font-mono text-sm shadow-inner">
+                        <div class="flex justify-between text-gray-400 text-xs border-b border-gray-700 pb-2 mb-2">
+                            <span>COMMIT MESSAGE PREVIEW</span>
+                            <span id="charCount">0 chars</span>
+                        </div>
+                        <p>
+                            <span id="previewType" class="text-blue-400">feat</span><span id="previewScope" class="text-yellow-400"></span>: <span id="previewSubject" class="text-white">...</span>
+                        </p>
+                        <p id="previewBody" class="text-gray-400 mt-2 whitespace-pre-wrap"></p>
+                    </div>
+                </div>
+
+                <!-- Rules Sidebar (Right 1/3) -->
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                        <h4 class="font-bold text-green-700">El Modo Imperativo</h4>
+                        <p class="text-sm text-gray-600 mt-1">Escribe como si dieras una orden al sistema.</p>
+                        <ul class="text-xs text-gray-500 mt-2 space-y-1">
+                            <li>✅ "Add inventory field"</li>
+                            <li>❌ "Added inventory field"</li>
+                            <li>❌ "Adds inventory field"</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                        <h4 class="font-bold text-yellow-700">Reglas de Oro</h4>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-2 list-disc list-inside">
+                            <li>No termines el subject con punto.</li>
+                            <li>Usa minúsculas en el subject.</li>
+                            <li>Separa el cuerpo del título con una línea vacía.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: WORKFLOW -->
+        <div id="workflow" class="tab-content">
+            <div class="mb-8 border-b border-gray-200 pb-4">
+                <h2 class="text-3xl font-bold text-gray-900">Flujo de Trabajo (Pull Requests)</h2>
+                <p class="mt-2 text-lg text-gray-600">
+                    El Pull Request (PR) es el momento crucial para la revisión de calidad. No es solo "unir código", es asegurar estabilidad.
+                </p>
+            </div>
+
+            <!-- Workflow Steps Visual -->
+            <div class="relative mb-12">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-between">
+                    <div class="bg-white px-2">
+                        <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold ring-8 ring-white">1</span>
+                        <span class="absolute -bottom-8 left-0 text-xs font-bold text-gray-500 w-24 text-center -ml-6">Crear Rama</span>
+                    </div>
+                    <div class="bg-white px-2">
+                        <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold ring-8 ring-white">2</span>
+                        <span class="absolute -bottom-8 left-0 text-xs font-bold text-gray-500 w-24 text-center -ml-6">Commits</span>
+                    </div>
+                    <div class="bg-white px-2">
+                        <span class="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold ring-8 ring-white">3</span>
+                        <span class="absolute -bottom-8 left-0 text-xs font-bold text-gray-500 w-24 text-center -ml-6">Abrir PR</span>
+                    </div>
+                    <div class="bg-white px-2">
+                        <span class="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold ring-8 ring-white">4</span>
+                        <span class="absolute -bottom-8 left-0 text-xs font-bold text-gray-500 w-24 text-center -ml-6">Review</span>
+                    </div>
+                    <div class="bg-white px-2">
+                        <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold ring-8 ring-white">5</span>
+                        <span class="absolute -bottom-8 left-0 text-xs font-bold text-gray-500 w-24 text-center -ml-6">Merge</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                <!-- PR Content Checklist -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">📝 Estructura del Pull Request</h3>
+                    <p class="text-sm text-gray-600 mb-4">Un buen PR ayuda al revisor a entender el contexto rápidamente.</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <input type="checkbox" checked disabled class="mt-1 h-4 w-4 text-orange-600 border-gray-300 rounded">
+                            <div class="ml-3">
+                                <label class="text-sm font-medium text-gray-700">Título Descriptivo</label>
+                                <p class="text-xs text-gray-500">Usa el formato Conventional Commit también aquí. Ej: feat: add user profile page</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" checked disabled class="mt-1 h-4 w-4 text-orange-600 border-gray-300 rounded">
+                            <div class="ml-3">
+                                <label class="text-sm font-medium text-gray-700">Descripción / Contexto</label>
+                                <p class="text-xs text-gray-500">¿Qué hace este cambio? ¿Por qué es necesario?</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" checked disabled class="mt-1 h-4 w-4 text-orange-600 border-gray-300 rounded">
+                            <div class="ml-3">
+                                <label class="text-sm font-medium text-gray-700">Screenshots / Gifs</label>
+                                <p class="text-xs text-gray-500">Obligatorio para cambios visuales (Front-end).</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" checked disabled class="mt-1 h-4 w-4 text-orange-600 border-gray-300 rounded">
+                            <div class="ml-3">
+                                <label class="text-sm font-medium text-gray-700">Link al Ticket</label>
+                                <p class="text-xs text-gray-500">Referencia a la tarea original (ID).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Git Commands Cheat Sheet -->
+                <div class="bg-gray-800 rounded-xl shadow p-6 text-white">
+                    <h3 class="text-lg font-bold text-white mb-4">⌨️ Comandos Esenciales</h3>
+                    <div class="space-y-4 font-mono text-sm">
+                        <div>
+                            <p class="text-gray-400 text-xs">Crear y cambiar a nueva rama</p>
+                            <p class="text-green-400">git checkout -b <span class="text-yellow-300">feat/nombre-rama</span></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs">Agregar cambios (Staging)</p>
+                            <p class="text-green-400">git add .</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs">Commit convencional</p>
+                            <p class="text-green-400">git commit -m "<span class="text-yellow-300">feat: add new navbar</span>"</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs">Actualizar rama local con main</p>
+                            <p class="text-green-400">git pull origin main</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs">Subir cambios</p>
+                            <p class="text-green-400">git push origin <span class="text-yellow-300">feat/nombre-rama</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                Mejores prácticas de GitHub & Conventional Commits
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        const state = {
+            currentTab: 'dashboard',
+            branch: {
+                type: 'feat',
+                ticket: '',
+                desc: ''
+            },
+            commit: {
+                type: 'feat',
+                scope: '',
+                subject: '',
+                body: ''
+            }
+        };
+
+        // DOM Elements for easy access
+        const els = {
+            branchForm: document.getElementById('branchForm'),
+            branchType: document.getElementById('branchType'),
+            branchTicket: document.getElementById('branchTicket'),
+            branchDesc: document.getElementById('branchDesc'),
+            branchResult: document.getElementById('branchResult'),
+            
+            commitType: document.getElementById('commitType'),
+            commitScope: document.getElementById('commitScope'),
+            commitSubject: document.getElementById('commitSubject'),
+            commitBody: document.getElementById('commitBody'),
+            previewType: document.getElementById('previewType'),
+            previewScope: document.getElementById('previewScope'),
+            previewSubject: document.getElementById('previewSubject'),
+            previewBody: document.getElementById('previewBody'),
+            charCount: document.getElementById('charCount'),
+            subjectWarning: document.getElementById('subjectWarning'),
+            
+            mobileMenu: document.getElementById('mobile-menu')
+        };
+
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Reset nav styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-orange-600', 'text-gray-900');
+                btn.classList.add('text-gray-500');
+            });
+
+            // Show target
+            document.getElementById(tabId).classList.add('active');
+            
+            // Highlight nav (desktop)
+            const navBtn = document.getElementById(`nav-${tabId}`);
+            if(navBtn) {
+                navBtn.classList.remove('text-gray-500');
+                navBtn.classList.add('text-gray-900', 'text-orange-600');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0,0);
+            
+            // Close mobile menu if open
+            if(!els.mobileMenu.classList.contains('hidden')) {
+                toggleMobileMenu();
+            }
+
+            // Render chart if dashboard
+            if(tabId === 'dashboard') {
+                renderChart();
+            }
+        }
+
+        function toggleMobileMenu() {
+            els.mobileMenu.classList.toggle('hidden');
+        }
+
+        // --- Branch Generator Logic ---
+        function updateBranchPreview() {
+            const type = els.branchType.value;
+            let ticket = els.branchTicket.value.trim().toUpperCase();
+            // Basic sanitization for ticket
+            ticket = ticket.replace(/\s+/g, '-');
+            
+            let desc = els.branchDesc.value.trim().toLowerCase();
+            // Replace special chars and spaces with hyphens
+            desc = desc.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove accents
+            desc = desc.replace(/[^a-z0-9\- ]/g, ""); // Remove non-alphanumeric
+            desc = desc.replace(/\s+/g, '-'); // Spaces to hyphens
+
+            let result = `${type}/`;
+            if (ticket) {
+                result += `${ticket}-`;
+            }
+            if (desc) {
+                result += desc;
+            } else if (!ticket) {
+                result += "descripcion-tarea";
+            } else {
+                // remove trailing hyphen if only ticket
+                result = result.slice(0, -1);
+            }
+
+            els.branchResult.textContent = result;
+        }
+
+        function copyBranch() {
+            const text = els.branchResult.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = els.branchResult.textContent;
+                els.branchResult.textContent = "¡Copiado!";
+                setTimeout(() => {
+                    els.branchResult.textContent = originalText;
+                }, 1000);
+            });
+        }
+
+        // --- Commit Builder Logic ---
+        function updateCommitPreview() {
+            const type = els.commitType.value;
+            const scope = els.commitScope.value.trim().toLowerCase();
+            const subject = els.commitSubject.value; // Keep original case for user to see, but warn
+            const body = els.commitBody.value;
+
+            // Update DOM
+            els.previewType.textContent = type;
+            els.previewScope.textContent = scope ? `(${scope})` : '';
+            els.previewSubject.textContent = subject || '...';
+            els.previewBody.textContent = body;
+
+            // Character count for first line
+            const firstLineLength = `${type}${scope ? `(${scope})` : ''}: ${subject}`.length;
+            els.charCount.textContent = `${firstLineLength} chars`;
+            
+            // Validations
+            if (firstLineLength > 50) {
+                els.charCount.classList.add('text-red-400');
+                els.subjectWarning.classList.remove('hidden');
+            } else {
+                els.charCount.classList.remove('text-red-400');
+                els.subjectWarning.classList.add('hidden');
+            }
+        }
+
+        // --- Event Listeners ---
+        // Branch Inputs
+        els.branchType.addEventListener('change', updateBranchPreview);
+        els.branchTicket.addEventListener('input', updateBranchPreview);
+        els.branchDesc.addEventListener('input', updateBranchPreview);
+
+        // Commit Inputs
+        els.commitType.addEventListener('change', updateCommitPreview);
+        els.commitScope.addEventListener('input', updateCommitPreview);
+        els.commitSubject.addEventListener('input', updateCommitPreview);
+        els.commitBody.addEventListener('input', updateCommitPreview);
+
+        // --- Chart.js Implementation ---
+        let healthChart = null;
+
+        function renderChart() {
+            const ctx = document.getElementById('repoHealthChart');
+            if (!ctx) return; // Guard clause
+
+            // Destroy existing if re-rendering
+            if (healthChart) {
+                // Check if canvas is still in DOM (Chartjs safety)
+                healthChart.destroy();
+            }
+
+            healthChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Features (feat)', 'Bug Fixes (fix)', 'Refactors', 'Chore/Maintenance', 'Docs/Style'],
+                    datasets: [{
+                        label: 'Distribución de Commits',
+                        data: [45, 20, 15, 15, 5],
+                        backgroundColor: [
+                            '#0D9488', // Teal (feat)
+                            '#EA580C', // Orange (fix)
+                            '#8B5CF6', // Purple (refactor)
+                            '#6B7280', // Gray (chore)
+                            '#3B82F6'  // Blue (docs)
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChart();
+            updateBranchPreview();
+            updateCommitPreview();
+            // Highlight initial tab
+            document.getElementById('nav-dashboard').classList.add('text-gray-900', 'text-orange-600');
+            document.getElementById('nav-dashboard').classList.remove('text-gray-500');
+        });
+
+    </script>
+</body>
+</html>
